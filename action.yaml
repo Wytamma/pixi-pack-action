@@ -1,6 +1,9 @@
-name: "Pixi-Pack Composite Action"
+name: "Pixi-Pack Action"
 description: "Uses pixi-pack to create installers for a pixi env"
 author: "Wytamma"
+branding:
+  icon: 'upload'
+  color: 'green'
 
 inputs:
   platform:
