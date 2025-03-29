@@ -1,6 +1,6 @@
 name: "Pixi-Pack Composite Action"
-description: "Installs pixi via setup-pixi and runs pixi-pack pack"
-author: "Your Name or Org"
+description: "Uses pixi-pack to create installers for a pixi env"
+author: "Wytamma"
 
 inputs:
   platform:
