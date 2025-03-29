@@ -28,11 +28,13 @@ runs:
     # 2) Install pixi-pack & rattler-build globally via pixi
     - name: Install pixi-pack & rattler-build
       run: pixi global install pixi-pack rattler-build
+      shell: bash
 
     # 3) Conditionally build recipe
     - name: Build package recipe
       if: inputs.recipe != ''
       run: rattler-build build -r ${{ inputs.recipe }}
+      shell: bash
 
     # 4) Run pixi-pack with optional --inject
     - name: Run pixi-pack
@@ -48,6 +50,7 @@ runs:
 
         echo "Running: $PACK_CMD"
         eval "$PACK_CMD"
+      shell: bash
 
     # 5) Rename the output file
     - name: Rename output file
@@ -63,3 +66,4 @@ runs:
         extension="${filename##*.}"
         NEW_NAME="${{ inputs.name }}.${extension}"
         mv "$OUTPUT_FILE" "$NEW_NAME"
+      shell: bash
