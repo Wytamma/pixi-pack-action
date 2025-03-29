@@ -9,8 +9,8 @@ inputs:
   platform:
     description: "Target platform for pixi-pack"
     required: true
-  name:
-    description: "Name of the environment file"
+  entrypoint:
+    description: "Entrypoint for the install script"
     required: false
   recipe:
     description: "Path to recipe to build and inject into env"
@@ -54,7 +54,6 @@ runs:
 
     # 5) Rename the output file
     - name: Rename output file
-      if: inputs.name != ''
       run: |
         OUTPUT_FILE=$(ls -1 | grep -E 'environment\.(sh|ps1)' | head -n 1)
         if [ -z "$OUTPUT_FILE" ]; then
@@ -64,6 +63,15 @@ runs:
         echo "Found output file: $OUTPUT_FILE"
         filename=$(basename -- "$OUTPUT_FILE")
         extension="${filename##*.}"
-        NEW_NAME="${{ inputs.name }}.${extension}"
+        NEW_NAME="${{ github.event.repository.name }}-${{ github.ref_name }}-${{ inputs.platform }}.${extension}"
         mv "$OUTPUT_FILE" "$NEW_NAME"
+      shell: bash
+
+    - name: Create install script
+      if: inputs.entrypoint != ''
+      run: |
+        mv install.template.sh install.sh
+        sed -i "s|{{GH_USER}}|${{github.repository_owner}}|g" install.sh
+        sed -i "s|{{PROJECT}}|${{ github.event.repository.name }}|g" install.sh
+        sed -i "s|{{ENTRYPOINT}}|${{ inputs.entrypoint }}|g" install.sh
       shell: bash
