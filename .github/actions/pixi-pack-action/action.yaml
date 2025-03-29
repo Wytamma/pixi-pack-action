@@ -1,0 +1,62 @@
+name: "Pixi-Pack Composite Action"
+description: "Installs pixi via setup-pixi and runs pixi-pack pack"
+author: "Your Name or Org"
+
+inputs:
+  platform:
+    description: "Target platform for pixi-pack"
+    required: true
+  name:
+    description: "Name of the environment file"
+    required: false
+  recipe:
+    description: "Path to recipe to build and inject into env"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    # 1) Install Pixi (using prefix-dev/setup-pixi)
+    - name: Install Pixi
+      uses: prefix-dev/setup-pixi@v0.8.3
+      with:
+        runInstall: false
+
+    # 2) Install pixi-pack & rattler-build globally via pixi
+    - name: Install pixi-pack & rattler-build
+      run: pixi global install pixi-pack rattler-build
+
+    # 3) Conditionally build recipe
+    - name: Build package recipe
+      if: inputs.recipe != ''
+      run: rattler-build build -r ${{ inputs.recipe }}
+
+    # 4) Run pixi-pack with optional --inject
+    - name: Run pixi-pack
+      run: |
+        echo "==> Packing environment for platform: ${{ inputs.platform }}"
+
+        PACK_CMD="pixi-pack pack --platform '${{ inputs.platform }}' --create-executable"
+
+        if [ -n "${{ inputs.recipe }}" ]; then
+          echo "Adding --inject flag based on recipe presence"
+          PACK_CMD="$PACK_CMD --inject output/noarch/*.conda"
+        fi
+
+        echo "Running: $PACK_CMD"
+        eval "$PACK_CMD"
+
+    # 5) Rename the output file
+    - name: Rename output file
+      if: inputs.name != ''
+      run: |
+        OUTPUT_FILE=$(ls -1 | grep -E 'environment\.(sh|ps1)' | head -n 1)
+        if [ -z "$OUTPUT_FILE" ]; then
+          echo "No output file found matching pattern"
+          exit 1
+        fi
+        echo "Found output file: $OUTPUT_FILE"
+        filename=$(basename -- "$OUTPUT_FILE")
+        extension="${filename##*.}"
+        NEW_NAME="${{ inputs.name }}.${extension}"
+        mv "$OUTPUT_FILE" "$NEW_NAME"
