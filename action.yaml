@@ -70,7 +70,7 @@ runs:
     - name: Create install script
       if: inputs.entrypoint != ''
       run: |
-        mv install.template.sh install.sh
+        mv ${{ github.action_path }}/install.template.sh install.sh
         sed -i "s|{{GH_USER}}|${{github.repository_owner}}|g" install.sh
         sed -i "s|{{PROJECT}}|${{ github.event.repository.name }}|g" install.sh
         sed -i "s|{{ENTRYPOINT}}|${{ inputs.entrypoint }}|g" install.sh
