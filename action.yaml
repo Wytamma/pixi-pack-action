@@ -1,5 +1,5 @@
 name: "Pixi-Pack Action"
-description: "Uses pixi-pack to create installers for a pixi env"
+description: "Uses pixi-pack to create packed environments and installers"
 author: "Wytamma"
 branding:
   icon: 'upload'
@@ -7,14 +7,19 @@ branding:
 
 inputs:
   platform:
-    description: "Target platform for pixi-pack"
-    required: true
-  entrypoint:
-    description: "Entrypoint for the install script"
+    description: "Target platform for the environment (e.g., linux-64, osx-64, win-64)"
     required: false
+    default: 'linux-64'
   recipe:
-    description: "Path to recipe to build and inject into env"
+    description: "Path to recipe to build and inject into environment"
     required: false
+  entrypoint:
+    description: "If entrypoint is provided, an install script will be created"
+    required: false
+  installScriptName:
+    description: "Name of the install script"
+    required: false
+    default: 'install'
 
 runs:
   using: "composite"
@@ -32,7 +37,7 @@ runs:
 
     # 3) Conditionally build recipe
     - name: Build package recipe
-      if: inputs.recipe != ''
+      if: ${{ inputs.recipe != '' }}
       run: rattler-build build -r ${{ inputs.recipe }}
       shell: bash
 
@@ -67,11 +72,12 @@ runs:
         mv "$OUTPUT_FILE" "$NEW_NAME"
       shell: bash
 
+    # 6) Create install script
     - name: Create install script
-      if: inputs.entrypoint != ''
+      if: ${{ inputs.entrypoint != '' }}
       run: |
-        mv ${{ github.action_path }}/install.template.sh install.sh
-        sed -i "s|{{GH_USER}}|${{github.repository_owner}}|g" install.sh
-        sed -i "s|{{PROJECT}}|${{ github.event.repository.name }}|g" install.sh
-        sed -i "s|{{ENTRYPOINT}}|${{ inputs.entrypoint }}|g" install.sh
+        mv ${{ github.action_path }}/install.template.sh ${{ inputs.installScriptName }}.sh
+        sed -i "s|{{GH_USER}}|${{github.repository_owner}}|g" ${{ inputs.installScriptName }}.sh
+        sed -i "s|{{PROJECT}}|${{ github.event.repository.name }}|g" ${{ inputs.installScriptName }}.sh
+        sed -i "s|{{ENTRYPOINT}}|${{ inputs.entrypoint }}|g" ${{ inputs.installScriptName }}.sh
       shell: bash
