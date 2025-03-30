@@ -13,13 +13,6 @@ inputs:
   recipe:
     description: "Path to recipe to build and inject into environment"
     required: false
-  entrypoint:
-    description: "If entrypoint is provided, an install script will be created"
-    required: false
-  installScriptName:
-    description: "Name of the install script"
-    required: false
-    default: 'install'
 
 runs:
   using: "composite"
@@ -70,14 +63,4 @@ runs:
         extension="${filename##*.}"
         NEW_NAME="${{ github.event.repository.name }}-${{ github.ref_name }}-${{ inputs.platform }}.${extension}"
         mv "$OUTPUT_FILE" "$NEW_NAME"
-      shell: bash
-
-    # 6) Create install script
-    - name: Create install script
-      if: ${{ inputs.entrypoint != '' }}
-      run: |
-        mv ${{ github.action_path }}/install.template.sh ${{ inputs.installScriptName }}.sh
-        sed -i "s|{{GH_USER}}|${{github.repository_owner}}|g" ${{ inputs.installScriptName }}.sh
-        sed -i "s|{{PROJECT}}|${{ github.event.repository.name }}|g" ${{ inputs.installScriptName }}.sh
-        sed -i "s|{{ENTRYPOINT}}|${{ inputs.entrypoint }}|g" ${{ inputs.installScriptName }}.sh
       shell: bash
