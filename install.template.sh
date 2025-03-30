@@ -20,8 +20,8 @@ usage() {
   echo "Usage: $0 [options]"
   echo "  [--gh-user GH_USER]         GitHub user (default: $GH_USER)"
   echo "  [--project PROJECT]         Project name (default: $PROJECT)"
-  echo "  [--entrypoint ENTRYPOINT]   Executable name to symlink as (default: $ENTRYPOINT)"
-  echo "  [--name NAME]               Name of the symlink (default: $NAME)"
+  echo "  [--entrypoint ENTRYPOINT]   Program to extract from the environment (default: $ENTRYPOINT)"
+  echo "  [--name NAME]               Name of executable (default: $ENTRYPOINT)"
   echo "  [--version VERSION]         Version to install (default: latest from GitHub)"
   echo "  [--bin-dir BIN_DIR]         Directory to place symlink (default: $BIN_DIR)"
   echo "  [--envs-dir ENVS_DIR]       Directory where environments are stored (default: $ENVS_DIR)"
@@ -185,8 +185,8 @@ cat "${ENV_DIR}/activate.sh" > "${ENV_DIR}/${NAME}"
 echo "$ENTRYPOINT \$@" >> "${ENV_DIR}/${NAME}"
 chmod +x "${ENV_DIR}/${NAME}"
 
-echo "Creating symlink to $ENTRYPOINT in $BIN_DIR"
-ln -s "${ENV_DIR}/${ENTRYPOINT}" "$BIN"
+echo "Creating symlink to "${ENV_DIR}/${NAME}" in $BIN_DIR"
+ln -s "${ENV_DIR}/${NAME}" "$BIN"
 
 # check BIN_DIR is in PATH
 if ! echo "$PATH" | grep -q "$BIN_DIR"; then
