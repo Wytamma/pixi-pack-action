@@ -6,10 +6,13 @@ branding:
   color: 'green'
 
 inputs:
+  environment:
+    description: "Environment to pack"
+    required: false
+    default: 'default'
   platform:
     description: "Target platform for the environment (e.g., linux-64, osx-64, win-64)"
     required: false
-    default: 'linux-64'
   recipe:
     description: "Path to recipe to build and inject into environment"
     required: false
@@ -39,7 +42,12 @@ runs:
       run: |
         echo "==> Packing environment for platform: ${{ inputs.platform }}"
 
-        PACK_CMD="pixi-pack pack --platform '${{ inputs.platform }}' --create-executable"
+        PACK_CMD="pixi-pack pack  --environment '${{ inputs.environment }}' --create-executable "
+
+        if [ -n "${{ inputs.platform }}" ]; then
+          echo "Adding --platform flag: ${{ inputs.platform }}"
+          PACK_CMD="$PACK_CMD --platform '${{ inputs.platform }}'"
+        fi
 
         if [ -n "${{ inputs.recipe }}" ]; then
           echo "Adding --inject flag based on recipe presence"
