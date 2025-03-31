@@ -16,6 +16,14 @@ inputs:
   recipe:
     description: "Path to recipe to build and inject into environment"
     required: false
+  pixi-pack-version:
+    description: "Version of pixi-pack to use"
+    required: false
+    default: '0.3.3'
+  rattler-build-version:
+    description: "Version of rattler-build to use"
+    required: false
+    default: '0.39.0'
 
 runs:
   using: "composite"
@@ -28,7 +36,7 @@ runs:
 
     # 2) Install pixi-pack & rattler-build globally via pixi
     - name: Install pixi-pack & rattler-build
-      run: pixi global install pixi-pack rattler-build
+      run: pixi global install pixi-pack==${{ inputs.pixi-pack-version }} rattler-build==${{ inputs.rattler-build-version }}
       shell: bash
 
     # 3) Conditionally build recipe
