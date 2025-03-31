@@ -1,16 +1,25 @@
 # Pixi-Pack Action
 
-Using the pixi-pack action you can create packed versions of your pixi environments. This action can also be used to create install scripts for packages from these packed environments.
+Using the pixi-pack action you can automatically create cross-platform self-extracting binaries that contains your pixi environments.
+
+See also the [pixi-pack-install-script action](https://github.com/Wytamma/pixi-pack-install-script) that can be used to create install scripts for packages from your environments.
 
 # Example 
 
-We have a repo https://github.com/Wytamma/pixi-python that contains a pixi environment with python and uses the pixi-pack action to create a packed version of the environment.
+We have a repo https://github.com/Wytamma/pixi-python that contains a pixi environment with python and uses the pixi-pack action to create a packed version of the environment for mac, linux and windows when a release is created.
 
-The version of python in this environment can be installed using the install script command: 
+The exact environment can be reproduced by running the following commands:
 
 ```bash
-curl -sSL https://github.com/Wytamma/pixi-python/releases/latest/download/install.sh | bash
+# Download the environment
+wget https://github.com/Wytamma/pixi-python/releases/download/v1.0.8/pixi-python-v1.0.8-osx-arm64.sh -O environment.sh
+# Setup the environment
+chmod +x environment.sh
+./environment.sh
+# Activate the environment
+source ./environment.sh
 ```
+
 # Example Workflow
 
 ```yaml
@@ -38,10 +47,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Pixi-Pack
-        uses: wytamma/pixi-pack-action@v2.0.2
+        uses: wytamma/pixi-pack-action@v4
         with:
           platform: ${{ matrix.platform }}
-          entrypoint: ${ { matrix.platform == 'linux-64' && 'python' || '' } } # create once for unix
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
