@@ -19,7 +19,7 @@ inputs:
   pixi-pack-version:
     description: "Version of pixi-pack to use"
     required: false
-    default: '0.3.3'
+    default: '0.5.0'
   rattler-build-version:
     description: "Version of rattler-build to use"
     required: false
