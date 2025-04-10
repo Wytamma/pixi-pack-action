@@ -13,6 +13,9 @@ inputs:
   platform:
     description: "Target platform for the environment (e.g., linux-64, osx-64, win-64)"
     required: false
+  version:
+    description: "Version string to embed in the output filename. Defaults to github.ref_name."
+    default: ""
   recipe:
     description: "Path to recipe to build and inject into environment"
     required: false
@@ -92,9 +95,14 @@ runs:
           echo "No output file found matching pattern"
           exit 1
         fi
-        echo "Found output file: $OUTPUT_FILE"
+        VERSION="${{ inputs.version }}"
+        if [ -z "$VERSION" ]; then
+          VERSION="${{ github.ref_name }}"
+        fi
+
         filename=$(basename -- "$OUTPUT_FILE")
         extension="${filename##*.}"
-        NEW_NAME="${{ github.event.repository.name }}-${{ github.ref_name }}-${{ inputs.platform }}.${extension}"
+        NEW_NAME="${{ github.event.repository.name }}-$VERSION-${{ inputs.platform }}.${extension}"
+        echo "Renaming $OUTPUT_FILE → $NEW_NAME"
         mv "$OUTPUT_FILE" "$NEW_NAME"
       shell: bash
