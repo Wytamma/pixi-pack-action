@@ -16,10 +16,16 @@ inputs:
   recipe:
     description: "Path to recipe to build and inject into environment"
     required: false
+  rattler-build-channels:
+    description: |
+      Comma‑separated list of extra channels to search when building the
+      recipe (e.g. 'bioconda,conda-forge').  Each channel is passed to
+      rattler-build as `-c <channel>`.
+    required: false
   pixi-pack-version:
     description: "Version of pixi-pack to use"
     required: false
-    default: '0.5.0'
+    default: '0.4.0'
   rattler-build-version:
     description: "Version of rattler-build to use"
     required: false
@@ -42,8 +48,20 @@ runs:
     # 3) Conditionally build recipe
     - name: Build package recipe
       if: ${{ inputs.recipe != '' }}
-      run: rattler-build build -r ${{ inputs.recipe }}
       shell: bash
+      run: |
+        BUILD_CMD="rattler-build build -r '${{ inputs.recipe }}'"
+
+        # add any user‑supplied channels
+        if [ -n "${{ inputs.rattler-build-channels }}" ]; then
+          IFS=',' read -ra CHANS <<< "${{ inputs.rattler-build-channels }}"
+          for chan in "${CHANS[@]}"; do
+            echo "Adding channel: $chan"
+            BUILD_CMD="$BUILD_CMD -c $chan"
+          done
+        fi
+
+        eval "$BUILD_CMD"
 
     # 4) Run pixi-pack with optional --inject
     - name: Run pixi-pack
