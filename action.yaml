@@ -28,11 +28,11 @@ inputs:
   pixi-pack-version:
     description: "Version of pixi-pack to use"
     required: false
-    default: '0.4.0'
+    default: '0.7.5'
   rattler-build-version:
     description: "Version of rattler-build to use"
     required: false
-    default: '0.39.0'
+    default: '0.57.2'
 
 runs:
   using: "composite"
@@ -71,7 +71,7 @@ runs:
       run: |
         echo "==> Packing environment for platform: ${{ inputs.platform }}"
 
-        PACK_CMD="pixi-pack pack  --environment '${{ inputs.environment }}' --create-executable "
+        PACK_CMD="pixi-pack --environment '${{ inputs.environment }}' --create-executable "
 
         if [ -n "${{ inputs.platform }}" ]; then
           echo "Adding --platform flag: ${{ inputs.platform }}"
